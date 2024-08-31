@@ -38,11 +38,11 @@ const Editor = ({
 
 
     const editor: BlockNoteEditor = useCreateBlockNote({
-        editable,
+        // editable,
         initialContent: initialContent ? JSON.parse(initialContent) as PartialBlock[] : undefined,
-        useEditorChange: (editor) => {
-            onChange(JSON.stringify(editor.topLevelBlocks, null, 2))
-        },
+        // useEditorChange: (editor) => {
+        //     onChange(JSON.stringify(editor.topLevelBlocks, null, 2))
+        // },
         uploadFile: handleUpload
     });
     return (
