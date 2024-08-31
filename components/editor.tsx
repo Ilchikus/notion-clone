@@ -1,20 +1,60 @@
 "use client";
 
-import {
-    BlockNoteEditor,
-    PartialBlock
-} from "@blocknote/core";
+// TODO: fix saving content to db
 
-import {
-    BlockNoteViewRaw,
-    useCreateBlockNote,
-} from "@blocknote/react";
+import "@blocknote/core/fonts/inter.css";
+import { useCreateBlockNote, useEditorChange } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 
 import "@blocknote/core/style.css";
+import { PartialBlock } from "@blocknote/core";
+import { useTheme } from "next-themes";
 
-export const Editor = ({
+import { useEdgeStore } from "@/lib/edgestore";
 
-}) => {
-    const editor = useCreateBlockNote();
-    return <BlockNoteViewRaw editor={editor} />;
+interface EditorProps {
+    onChange: (value: string) => void;
+    initialContent?: string;
+    editable?: boolean;
 }
+
+const Editor = ({
+    onChange,
+    initialContent,
+    editable
+}:EditorProps) => {
+    const { resolvedTheme } = useTheme();
+    const { edgestore } = useEdgeStore();
+
+    const handleUpload = async (file: File) => {
+        const response = await edgestore.publicFiles.upload({
+            file
+        })
+
+        return response.url;
+    }
+
+
+
+    const editor: BlockNoteEditor = useCreateBlockNote({
+        editable,
+        initialContent: initialContent ? JSON.parse(initialContent) as PartialBlock[] : undefined,
+        useEditorChange: (editor) => {
+            onChange(JSON.stringify(editor.topLevelBlocks, null, 2))
+        },
+        uploadFile: handleUpload
+    });
+    return (
+        <div>
+        <BlockNoteView
+            editor={editor}
+            theme={resolvedTheme === "dark" ? "dark" : "light"}
+        />
+    </div>
+    )
+
+
+}
+
+export default Editor;
